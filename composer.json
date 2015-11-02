@@ -1,0 +1,20 @@
+{
+    "name": "sidcomua/php-anticaptcha",
+    "type": "library",
+    "description": "Anticaptcha",
+    "keywords": ["anticaptcha", "php", "antigate"],
+    "homepage": "https://github.com/sidcomua/php-anticaptcha",
+    "license": "MIT",
+    "authors": [
+        {
+            "name" : "SID"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "guzzlehttp/guzzle": ">=6.*"
+    },
+    "autoload": {
+        "classmap": ["src/"]
+    }
+}
