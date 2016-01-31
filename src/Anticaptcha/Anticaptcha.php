@@ -131,31 +131,34 @@ class Anticaptcha
     protected function sendImage($image)
     {
         $postfields = [
-            'body' => $image,
-            'multipart' => [
-                ['name' => 'key', 'contents' => $this->getService()->getApiKey()],
-                ['name' => 'file', 'contents' => $image, 'filename' => 'captcha'],
+            'form_params' => [
+                'key' => $this->getService()->getApiKey(),
+                'method' => 'base64',
+                'body' => base64_encode($image),
             ]
         ];
-                
-        foreach ($this->getService()->getParams() as $key => $val) {
-            $postfields['multipart'][] = ['name' => $key, 'contents' => (string) $val];
+    
+        if ($this->getDebug()) {
+            $postfields['debug'] = true;
         }
-        
+    
+        foreach ($this->getService()->getParams() as $key => $val) {
+            $postfields['form_params'][$key] = (string) $val;
+        }
+    
         $url = $this->getService()->getApiUrl() . '/in.php';
-        $this->log('connect to', $url);
-        
+    
         $result = $this->client()->request('POST', $url, $postfields);
         $body = $result->getBody();
-        
+    
         if (stripos($body, 'ERROR') !== false) {
             throw new Exception($body);
         }
-        
+    
         if (stripos($body, 'html') !== false) {
             throw new Exception('Anticaptcha server returned error!');
         }
-        
+    
         if (stripos($body, 'OK') !== false) {
             $ex = explode("|", $body);
             if (trim($ex[0]) == 'OK') {
