@@ -3,16 +3,17 @@
 namespace Anticaptcha;
 
 use Anticaptcha\Service\AbstractService;
-use Anticaptcha\Exception\Anticaptcha as Exception;
-use Anticaptcha\Http\Client as HttpClient;
+use Anticaptcha\ExceptionAnticaptcha as Exception;
+use Anticaptcha\Logger;
+use Psr\Log\AbstractLogger;
+use GuzzleHttp\Client;
 
 
 class Anticaptcha
 {
-    protected $debug = false; // режим отладки
-    
     protected $service;
     protected $client;
+    protected $logger;
     
     protected $options = [
         'timeout_ready' => 3, // задержка между опросами статуса капчи
@@ -25,25 +26,37 @@ class Anticaptcha
             $serviceName = ucfirst(strtolower($service));
             $serviceNamespace = __NAMESPACE__ . '\\Service\\' . $serviceName;
             $service = new $serviceNamespace;
+            
+            if (!class_exists($serviceNamespace, false)) {
+                 throw new Exception('Anticaptcha service provider ' . $service . ' not found!');
+            }
         }        
         
-        $this->setService($service);      
-        
-        if (!empty($options['api_key'])) {
-            $this->getService()->setApiKey($options['api_key']);
-            unset($options['api_key']);
-        }
-        
-        if (!empty($options['debug'])) {
-            $this->setDebug($options['debug']);
-            unset($options['debug']);
+        if ($service) {
+            $this->setService($service);      
+            
+            if (!empty($options['api_key'])) {
+                $this->getService()->setApiKey($options['api_key']);
+                unset($options['api_key']);
+            }
         }
         
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
+        
+        if (!empty($options['debug'])) {
+            // set Logger
+            $this->setLogger(new Logger);
+        }  
+        
+        // set Http Client
+        $this->setClient(new Client);
     }
     
+    /*
+     * Anticaptcah service provider
+     */
     public function setService(AbstractService $service)
     {
         $this->service = $service;
@@ -56,37 +69,34 @@ class Anticaptcha
         return $this->service;
     }
     
-    public function setDebug($debug)
+    /*
+     * Logger
+     */
+    public function setLogger(AbstractLogger $logger)
     {
-        $this->debug = (bool) $debug;
-    
+        $this->logger = $logger;
+        
         return $this;
-    }
-    
-    public function getDebug()
-    {
-        return (bool) $this->debug;
     }
     
     /*
      * HttpClient
-     */
-    protected function client()
+     */    
+    public function setClient($client)
     {
-        if (null === $this->client) {
-            $this->client = new HttpClient();
-        }
-        return $this->client;
+        $this->client = $client;
+        
+        return $this;
     }
     
     public function balance()
     {
-        $this->log("check ballans ...");
+        $this->logger->debug("check ballans ...");
         
         $url = $this->getService()->getApiUrl() . '/res.php';
-        $this->log('connect to', $url);
+        $this->logger->debug('connect to: ' . $url);
         
-        $request = $this->client()->request('GET', $url, [
+        $request = $this->client->request('GET', $url, [
             'query' => [
                 'key' => $this->getService()->getApiKey(), 
                 'action' => 'getbalance'
@@ -95,7 +105,7 @@ class Anticaptcha
         
         $body = $request->getBody();
         
-        $this->log('result:', $body);
+        $this->logger->debug('result: ' . $body);
         
         if (strpos($body, 'ERROR') !== false) {
             throw new Exception($body);
@@ -108,7 +118,7 @@ class Anticaptcha
     {        
         // скачиваем картинку
         if (null !== $url) {
-            $request = $this->client()->request('GET', $url);
+            $request = $this->client->request('GET', $url);
             $image = $request->getBody();
         }
         
@@ -122,10 +132,7 @@ class Anticaptcha
         // получаем результат
         if (!empty($captcha_id)) {
             return $this->getResult($captcha_id);
-        }
-        // формируем тело запроса
-        //$poststr = $this->_createSendContent($image);
-        
+        }        
     }
     
     protected function sendImage($image)
@@ -138,17 +145,13 @@ class Anticaptcha
             ]
         ];
     
-        if ($this->getDebug()) {
-            $postfields['debug'] = true;
-        }
-    
         foreach ($this->getService()->getParams() as $key => $val) {
             $postfields['form_params'][$key] = (string) $val;
         }
     
         $url = $this->getService()->getApiUrl() . '/in.php';
     
-        $result = $this->client()->request('POST', $url, $postfields);
+        $result = $this->client->request('POST', $url, $postfields);
         $body = $result->getBody();
     
         if (stripos($body, 'ERROR') !== false) {
@@ -169,14 +172,17 @@ class Anticaptcha
     
     protected function getResult($captcha_id)
     {
-        $this->log('captcha sent, got captcha ID:', $captcha_id);
-        $this->log('waiting for 10 seconds');
+        $this->logger->debug('captcha sent, got captcha ID: ' . $captcha_id);
+        
+        // задержка перед первым опросом результата каптчи
+        $this->logger->debug('waiting for 10 seconds');
+        sleep(10); 
     
-        $waittime = 0;
-        sleep(10);
-    
+        // максимальное время опроса результата каптчи
+        $waittime = 0;  
+        
         while(true) {
-            $request = $this->client()->request('GET', $this->getService()->getApiUrl() . '/res.php', [
+            $request = $this->client->request('GET', $this->getService()->getApiUrl() . '/res.php', [
                 'query' => [
                     'key' => $this->getService()->getApiKey(),
                     'action' => 'get',
@@ -191,32 +197,26 @@ class Anticaptcha
             }
     
             if ($body == "CAPCHA_NOT_READY")  {
-                $this->log('captcha is not ready yet');
+                $this->logger->debug('captcha is not ready yet');
     
                 $waittime += $this->options['timeout_ready'];
     
                 if ($waittime > $this->options['timeout_max']) {
-                    $this->log('timelimit (' . $this->options['timeout_max'] . ') hit');
+                    $this->logger->debug('timelimit (' . $this->options['timeout_max'] . ') hit');
                     break;
                 }
     
-                $this->log('waiting for ' . $this->options['timeout_ready'] . ' seconds');
+                $this->logger->debug('waiting for ' . $this->options['timeout_ready'] . ' seconds');
                 sleep($this->options['timeout_ready']);
-            } else {
+            } 
+            else {
                 $ex = explode('|', $body);
     
                 if (trim($ex[0]) == 'OK') {
-                    $this->log('result:', $body);
+                    $this->logger->debug('result: ' . $body);
                     return trim($ex[1]);
                 }
             }
-        }
-    }
-    
-    protected function log()
-    {
-        if ($this->getDebug()) {
-            echo implode(' ', func_get_args()) . "\n";
         }
     }
 }
