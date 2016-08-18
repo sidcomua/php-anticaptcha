@@ -4,11 +4,9 @@
 
 # IntelliJ project files
 .idea
-.idea/
+.idea/misc.xml
+.idea/vcs.xml
+
 *.iml
 out
 gen
-
-.idea/misc.xml
-
-.idea/vcs.xml
