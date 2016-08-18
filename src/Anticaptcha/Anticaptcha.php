@@ -8,18 +8,30 @@ use Anticaptcha\Logger;
 use Psr\Log\AbstractLogger;
 use GuzzleHttp\Client;
 
-
+/**
+ * Class Anticaptcha
+ * @package Anticaptcha
+ */
 class Anticaptcha
 {
     protected $service;
     protected $client;
     protected $logger;
-    
+
+    /**
+     * @var array
+     */
     protected $options = [
         'timeout_ready' => 3, // задержка между опросами статуса капчи
         'timeout_max' => 120, // время ожидания ввода капчи 
     ];
-    
+
+
+    /**
+     * Anticaptcha constructor.
+     * @param null $service
+     * @param array $options
+     */
     public function __construct($service = null, $options = [])
     {
         if (is_string($service)) {
@@ -53,9 +65,12 @@ class Anticaptcha
         // set Http Client
         $this->setClient(new Client);
     }
-    
-    /*
-     * Anticaptcah service provider
+
+    /**
+     * Anticaptcah service provider.
+     * @param AbstractService $service
+     *
+     * @return $this
      */
     public function setService(AbstractService $service)
     {
@@ -63,14 +78,23 @@ class Anticaptcha
         
         return $this;
     }
-    
+
+
+    /**
+     * Method getService description.
+     *
+     * @return mixed
+     */
     public function getService()
     {
         return $this->service;
     }
-    
-    /*
-     * Logger
+
+    /**
+     * Logger.
+     * @param AbstractLogger $logger
+     *
+     * @return $this
      */
     public function setLogger(AbstractLogger $logger)
     {
@@ -78,17 +102,27 @@ class Anticaptcha
         
         return $this;
     }
-    
-    /*
-     * HttpClient
-     */    
+
+    /**
+     * HttpClient.
+     * @param $client
+     *
+     * @return $this
+     */
     public function setClient($client)
     {
         $this->client = $client;
         
         return $this;
     }
-    
+
+
+    /**
+     * Method balance description.
+     *
+     * @return mixed
+     * @throws ExceptionAnticaptcha
+     */
     public function balance()
     {
         $this->logger->debug("check ballans ...");
@@ -113,7 +147,17 @@ class Anticaptcha
        
         return $body;
     }
-    
+
+
+    /**
+     * Method recognize description.
+     * @param $image
+     * @param null $url
+     * @param array $params
+     *
+     * @return string
+     * @throws ExceptionAnticaptcha
+     */
     public function recognize($image, $url = null, $params = [])
     {        
         // скачиваем картинку
@@ -134,7 +178,15 @@ class Anticaptcha
             return $this->getResult($captcha_id);
         }        
     }
-    
+
+
+    /**
+     * Method sendImage description.
+     * @param $image
+     *
+     * @return null
+     * @throws ExceptionAnticaptcha
+     */
     protected function sendImage($image)
     {
         $postfields = [
@@ -169,7 +221,15 @@ class Anticaptcha
             }
         }
     }
-    
+
+
+    /**
+     * Method getResult description.
+     * @param $captcha_id
+     *
+     * @return string
+     * @throws ExceptionAnticaptcha
+     */
     protected function getResult($captcha_id)
     {
         $this->logger->debug('captcha sent, got captcha ID: ' . $captcha_id);
