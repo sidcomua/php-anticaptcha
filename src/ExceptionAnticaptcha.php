@@ -1,7 +1,10 @@
-<?php 
+<?php namespace Anticaptcha;
 
-namespace Anticaptcha;
-
-
+/**
+ * Class ExceptionAnticaptcha
+ * @package Anticaptcha
+ */
 class ExceptionAnticaptcha extends \Exception
-{}
+{
+    
+}

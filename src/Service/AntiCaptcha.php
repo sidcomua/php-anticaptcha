@@ -9,6 +9,7 @@
  * Email: m.tymchyk@p1k.co.uk
  * Date: 18.08.16
  * Time: 17:45
+ * 
  */
 class AntiCaptcha extends AbstractService
 {

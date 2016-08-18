@@ -1,6 +1,4 @@
-<?php 
-
-namespace Anticaptcha\Service;
+<?php namespace Anticaptcha\Service;
 
 /**
  * Class Antigate

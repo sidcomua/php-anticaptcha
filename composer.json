@@ -2,13 +2,13 @@
     "name": "reilag/php-anticaptcha",
     "type": "library",
     "description": "Anticaptcha - Is PHP Library for working with Anticapthca services",
-    "keywords": ["php", "Anticaptcha", "anti-captcha", "antigate", "rucaptcha"],
+    "keywords": ["php", "anticaptcha", "anti-captcha", "antigate", "rucaptcha"],
     "homepage": "https://github.com/reilag/php-anticaptcha",
     "license": "MIT",
     "authors": [
         {
-          "name": "Tymchyk Maksym",
-          "email": "reilag69@gmail.com"
+            "name": "Tymchyk Maksym",
+            "email": "reilag69@gmail.com"
         }
     ],
     "require": {
