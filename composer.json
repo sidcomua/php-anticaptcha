@@ -1,7 +1,7 @@
 {
     "name": "reilag/php-anticaptcha",
     "type": "library",
-    "description": "Anticaptcha - Is PHP Library for working with Anticapthca services",
+    "description": "AntiCaptcha - Is PHP Library for working with Anticapthca services",
     "keywords": ["php", "anticaptcha", "anti-captcha", "antigate", "rucaptcha"],
     "homepage": "https://github.com/reilag/php-anticaptcha",
     "license": "MIT",
@@ -18,7 +18,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Anticaptcha\\": "src/"
+            "AntiCaptcha\\": "src/"
         }
     }
 }

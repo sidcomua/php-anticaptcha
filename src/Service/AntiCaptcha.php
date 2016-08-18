@@ -1,8 +1,8 @@
-<?php namespace Anticaptcha\Service;
+<?php namespace AntiCaptcha\Service;
 
 /**
  * Class AntiCaptcha
- * @package Anticaptcha\Service
+ * @package AntiCaptcha\Service
  *
  * Created by PhpStorm.
  * User: Maksym Tymchyk

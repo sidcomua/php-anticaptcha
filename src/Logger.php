@@ -1,8 +1,8 @@
-<?php namespace Anticaptcha;
+<?php namespace AntiCaptcha;
 
 /**
  * Class Logger
- * @package Anticaptcha
+ * @package AntiCaptcha
  */
 class Logger extends \Psr\Log\AbstractLogger 
 {

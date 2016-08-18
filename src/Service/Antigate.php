@@ -1,8 +1,8 @@
-<?php namespace Anticaptcha\Service;
+<?php namespace AntiCaptcha\Service;
 
 /**
  * Class Antigate
- * @package Anticaptcha\Service
+ * @package AntiCaptcha\Service
  */
 class Antigate extends AbstractService
 {

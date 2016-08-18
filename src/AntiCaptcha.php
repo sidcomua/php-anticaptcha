@@ -1,17 +1,17 @@
-<?php namespace Anticaptcha;
+<?php namespace AntiCaptcha;
 
-use Anticaptcha\Service\AbstractService;
-use Anticaptcha\ExceptionAnticaptcha as Exception;
-use Anticaptcha\Logger;
+use AntiCaptcha\Service\AbstractService;
+use AntiCaptcha\ExceptionAntiCaptcha as Exception;
+use AntiCaptcha\Logger;
 use Psr\Log\AbstractLogger;
 use GuzzleHttp\Client;
 
 
 /**
- * Class Anticaptcha
+ * Class AntiCaptcha
  * @package Anticaptcha
  */
-class Anticaptcha
+class AntiCaptcha
 {
 
     /**
@@ -166,7 +166,7 @@ class Anticaptcha
      * Method balance description.
      *
      * @return mixed
-     * @throws ExceptionAnticaptcha
+     * @throws ExceptionAntiCaptcha
      */
     public function balance()
     {
@@ -201,7 +201,7 @@ class Anticaptcha
      * @param array $params
      *
      * @return string
-     * @throws ExceptionAnticaptcha
+     * @throws ExceptionAntiCaptcha
      */
     public function recognize($image, $url = null, $params = [])
     {        
@@ -230,7 +230,7 @@ class Anticaptcha
      * @param $image
      *
      * @return null
-     * @throws ExceptionAnticaptcha
+     * @throws ExceptionAntiCaptcha
      */
     protected function sendImage($image)
     {
@@ -273,7 +273,7 @@ class Anticaptcha
      * @param $captcha_id
      *
      * @return string
-     * @throws ExceptionAnticaptcha
+     * @throws ExceptionAntiCaptcha
      */
     protected function getResult($captcha_id)
     {

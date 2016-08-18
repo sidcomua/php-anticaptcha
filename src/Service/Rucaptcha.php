@@ -1,8 +1,8 @@
-<?php namespace Anticaptcha\Service;
+<?php namespace AntiCaptcha\Service;
 
 /**
  * Class Rucaptcha
- * @package Anticaptcha\Service
+ * @package AntiCaptcha\Service
  */
 class Rucaptcha extends AbstractService
 {
