@@ -20,14 +20,36 @@ class Anticaptcha
         'timeout_max' => 120, // время ожидания ввода капчи 
     ];
     
-    public function __construct($service = null, $options = [])
+    /**
+     * Constants list
+     */
+    const SERVICE_ANTICAPTCHA   = 'anti-captcha';
+    const SERVICE_ANTIGATE      = 'antigate';
+    const SERVICE_CAPTCHABOT    = 'captchabot';
+    const SERVICE_RUCAPTCHA     = 'rucaptcha';
+    
+    /**
+     * Captcha service list
+     *
+     * @var array
+     */
+    protected static $serviceMap = [
+        self::SERVICE_ANTICAPTCHA   => Service\AntiCaptcha::class,
+        self::SERVICE_ANTIGATE      => Service\Antigate::class,
+        self::SERVICE_CAPTCHABOT    => Service\Captchabot::class,
+        self::SERVICE_RUCAPTCHA     => Service\Rucaptcha::class,
+    ];
+    
+    public function __construct($service = null, array $options = [])
     {
         if (is_string($service)) {
             $serviceName = ucfirst(strtolower($service));
             $serviceNamespace = __NAMESPACE__ . '\\Service\\' . $serviceName;
-            $service = new $serviceNamespace;
             
-            if (!class_exists($serviceNamespace, false)) {
+            if (array_key_exists($service, self::$serviceMap)) {
+                $serviceNamespace = self::$serviceMap[$service];
+                $service = new $serviceNamespace;
+            } else {
                  throw new Exception('Anticaptcha service provider ' . $service . ' not found!');
             }
         }        
@@ -48,7 +70,9 @@ class Anticaptcha
         if (!empty($options['debug'])) {
             // set Logger
             $this->setLogger(new Logger);
-        }  
+        } else {
+            $this->setLogger(new \Psr\Log\NullLogger);
+        }
         
         // set Http Client
         $this->setClient(new Client);
@@ -82,7 +106,7 @@ class Anticaptcha
     /*
      * HttpClient
      */    
-    public function setClient($client)
+    public function setClient(Client $client)
     {
         $this->client = $client;
         
