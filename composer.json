@@ -1,21 +1,24 @@
 {
-    "name": "sidcomua/php-anticaptcha",
+    "name": "reilag/php-anticaptcha",
     "type": "library",
-    "description": "Anticaptcha",
-    "keywords": ["anticaptcha", "php", "antigate", "rucaptcha"],
-    "homepage": "https://github.com/sidcomua/php-anticaptcha",
+    "description": "AntiCaptcha - Is PHP Library for working with Anticapthca services",
+    "keywords": ["php", "anticaptcha", "anti-captcha", "antigate", "rucaptcha"],
+    "homepage": "https://github.com/reilag/php-anticaptcha",
     "license": "MIT",
     "authors": [
         {
-            "name" : "SID"
+            "name": "Tymchyk Maksym",
+            "email": "reilag69@gmail.com"
         }
     ],
     "require": {
         "php": ">=5.4.0",
-        "guzzlehttp/guzzle": ">=6",
+        "guzzlehttp/guzzle": "6.2.1",
         "psr/log": "~1"
     },
     "autoload": {
-        "classmap": ["src/"]
+        "psr-4": {
+            "AntiCaptcha\\": "src/"
+        }
     }
 }
