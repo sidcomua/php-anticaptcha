@@ -1,8 +1,8 @@
 <?php
 
-use Anticaptcha\Anticaptcha;
-
 require_once realpath(dirname(dirname(__FILE__))) . '/vendor/autoload.php';
+
+use Anticaptcha\Anticaptcha;
 
 
 $image = file_get_contents(realpath(dirname(__FILE__)) . '/images/image.jpg');
