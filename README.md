@@ -27,7 +27,7 @@ require 'vendor/autoload.php';
 
 ### Recognize captcha
 ```php
-use Anticaptcha\Anticaptcha;
+use AntiCaptcha\AntiCaptcha;
 
 // Get file content
 $image = file_get_contents(realpath(dirname(__FILE__)) . '/images/image.jpg');
@@ -35,18 +35,18 @@ $image = file_get_contents(realpath(dirname(__FILE__)) . '/images/image.jpg');
 // Your API key
 $apiKey = '*********** API_KEY **************';
 
-$antiCaptchaClient = new Anticaptcha('rucaptcha', ['api_key' => $apiKey, 'debug' => true]);
+$antiCaptchaClient = new AntiCaptcha('rucaptcha', ['api_key' => $apiKey, 'debug' => true]);
 echo $antiCaptchaClient->recognize($image, null, ['phrase' => 0, 'numeric' => 0]);
 ```
 
 ### Get balance
 ```php
-use Anticaptcha\Anticaptcha;
+use AntiCaptcha\AntiCaptcha;
 
 $apiKey = '*********** API_KEY **************';
 
-$service = new \Anticaptcha\Service\Antigate($apiKey);
-$antiCaptchaClient = new \Anticaptcha\Anticaptcha($service);
+$service = new \AntiCaptcha\Service\Antigate($apiKey);
+$antiCaptchaClient = new \AntiCaptcha\AntiCaptcha($service);
 
 echo $antiCaptchaClient->balance();
 ```

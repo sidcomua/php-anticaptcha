@@ -9,7 +9,7 @@ use GuzzleHttp\Client;
 
 /**
  * Class AntiCaptcha
- * @package Anticaptcha
+ * @package AntiCaptcha
  */
 class AntiCaptcha
 {
@@ -60,7 +60,7 @@ class AntiCaptcha
         ];
 
     /**
-     * Anticaptcha constructor.
+     * AntiCaptcha constructor.
      * @param null|string|AbstractService $service
      * @param array $options
      *
