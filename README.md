@@ -1,5 +1,7 @@
 # Anticaptcha PHP SDK
 
+[PHP Anticaptcha on Packages.org](https://packagist.org/packages/reilag/php-anticaptcha)
+
 PHP client for Anticaptcha services:
 
 * [anti-captcha.com](http://anti-captcha.com) (recommend)
