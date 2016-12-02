@@ -3,13 +3,15 @@
 use AntiCaptcha\Exception\AntiCaptchaException;
 use AntiCaptcha\Exception\InvalidAntiCaptchaServiceException;
 use AntiCaptcha\Service\AbstractService;
-use Psr\Log\AbstractLogger;
+
 use GuzzleHttp\Client;
+
+use Psr\Log\AbstractLogger;
 
 
 /**
  * Class AntiCaptcha
- * @package Anticaptcha
+ * @package AntiCaptcha
  */
 class AntiCaptcha
 {
@@ -26,8 +28,14 @@ class AntiCaptcha
 
     /**
      * @var AbstractLogger $logger
+     * @deprecated
      */
     protected $logger;
+
+    /**
+     * @var bool
+     */
+    protected $debugMod = false;
 
     /**
      * @var array
@@ -41,10 +49,10 @@ class AntiCaptcha
     /**
      * Constants list
      */
-    const SERVICE_ANTICAPTCHA = 'anti-captcha';
-    const SERVICE_ANTIGATE = 'antigate';
-    const SERVICE_CAPTCHABOT = 'captchabot';
-    const SERVICE_RUCAPTCHA = 'rucaptcha';
+    const SERVICE_ANTICAPTCHA   = 'anti-captcha';
+    const SERVICE_ANTIGATE      = 'antigate';
+    const SERVICE_CAPTCHABOT    = 'captchabot';
+    const SERVICE_RUCAPTCHA     = 'rucaptcha';
 
     /**
      * Captcha service list
@@ -61,7 +69,7 @@ class AntiCaptcha
 
     /**
      * AntiCaptcha constructor.
-     * @param null $service
+     * @param null|string|AbstractService $service
      * @param array $options
      *
      * @throws AntiCaptchaException
@@ -103,7 +111,7 @@ class AntiCaptcha
 
         if (!empty($options['debug']))
         {
-            // set Logger
+            $this->debugMod = true;
             $this->setLogger(new Logger);
         }
 
@@ -170,10 +178,17 @@ class AntiCaptcha
      */
     public function balance()
     {
-        $this->logger->debug("check ballans ...");
+        if( $this->debugMod )
+        {
+            $this->logger->debug("check ballans ...");
+        }
 
         $url = $this->getService()->getApiUrl() . '/res.php';
-        $this->logger->debug('connect to: ' . $url);
+
+        if( $this->debugMod )
+        {
+            $this->logger->debug('connect to: ' . $url);
+        }
 
         $request = $this->client->request('GET', $url, [
             'query' =>
@@ -185,7 +200,11 @@ class AntiCaptcha
 
         $body = $request->getBody();
 
-        $this->logger->debug('result: ' . $body);
+        if( $this->debugMod )
+        {
+            $this->logger->debug('result: ' . $body);
+        }
+
 
         if (strpos($body, 'ERROR') !== false)
         {
@@ -220,7 +239,8 @@ class AntiCaptcha
 
         $captcha_id = $this->sendImage($image);
 
-        if (!empty($captcha_id)) {
+        if (!empty($captcha_id))
+        {
             return $this->getResult($captcha_id);
         }
     }
@@ -245,7 +265,8 @@ class AntiCaptcha
                     ]
             ];
 
-        foreach ($this->getService()->getParams() as $key => $val) {
+        foreach ($this->getService()->getParams() as $key => $val)
+        {
             $postfields['form_params'][$key] = (string)$val;
         }
 
@@ -284,16 +305,22 @@ class AntiCaptcha
      */
     protected function getResult($captcha_id)
     {
-        $this->logger->debug('captcha sent, got captcha ID: ' . $captcha_id);
+        if( $this->debugMod )
+        {
+            $this->logger->debug('captcha sent, got captcha ID: ' . $captcha_id);
+        }
 
-        // задержка перед первым опросом результата каптчи
-        $this->logger->debug('waiting for 10 seconds');
+        // Delay, before first captcha check
+        if( $this->debugMod )
+        {
+            $this->logger->debug('waiting for 10 seconds');
+        }
         sleep(10);
 
-        // максимальное время опроса результата каптчи
-        $waittime = 0;
+        $waitTime = 0;
 
-        while (true) {
+        while (true)
+        {
             $request = $this->client->request('GET', $this->getService()->getApiUrl() . '/res.php', [
                 'query' =>
                     [
@@ -312,17 +339,26 @@ class AntiCaptcha
 
             if ($body == "CAPCHA_NOT_READY")
             {
-                $this->logger->debug('captcha is not ready yet');
-
-                $waittime += $this->options['timeout_ready'];
-
-                if ($waittime > $this->options['timeout_max'])
+                if( $this->debugMod )
                 {
-                    $this->logger->debug('timelimit (' . $this->options['timeout_max'] . ') hit');
+                    $this->logger->debug('captcha is not ready yet');
+                }
+
+                $waitTime += $this->options['timeout_ready'];
+
+                if ($waitTime > $this->options['timeout_max'])
+                {
+                    if( $this->debugMod )
+                    {
+                        $this->logger->debug('timelimit (' . $this->options['timeout_max'] . ') hit');
+                    }
                     break;
                 }
 
-                $this->logger->debug('waiting for ' . $this->options['timeout_ready'] . ' seconds');
+                if( $this->debugMod )
+                {
+                    $this->logger->debug('waiting for ' . $this->options['timeout_ready'] . ' seconds');
+                }
                 sleep($this->options['timeout_ready']);
             }
             else
