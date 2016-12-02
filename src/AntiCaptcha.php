@@ -1,8 +1,8 @@
 <?php namespace AntiCaptcha;
 
+use AntiCaptcha\Exception\AntiCaptchaException;
+use AntiCaptcha\Exception\InvalidAntiCaptchaServiceException;
 use AntiCaptcha\Service\AbstractService;
-use AntiCaptcha\ExceptionAntiCaptcha as Exception;
-use AntiCaptcha\Logger;
 use Psr\Log\AbstractLogger;
 use GuzzleHttp\Client;
 
@@ -60,41 +60,49 @@ class AntiCaptcha
         ];
 
     /**
-     * Anticaptcha constructor.
-     * @param null|string|AbstractService $service
+     * AntiCaptcha constructor.
+     * @param null $service
      * @param array $options
      *
-     * @throws Exception
+     * @throws AntiCaptchaException
+     * @throws InvalidAntiCaptchaServiceException
      */
     public function __construct($service = null, array $options = [])
     {
-
-        if (is_string($service)) {
+        if (is_string($service))
+        {
             $serviceName = ucfirst(strtolower($service));
             $serviceNamespace = __NAMESPACE__ . '\\Service\\' . $serviceName;
 
-            if (array_key_exists($service, self::$serviceMap)) {
+            if (array_key_exists($service, self::$serviceMap))
+            {
                 $serviceNamespace = self::$serviceMap[$service];
                 $service = new $serviceNamespace;
-            } else {
-                throw new Exception('Anticaptcha service provider ' . $service . ' not found!');
+            }
+            else
+            {
+                throw new InvalidAntiCaptchaServiceException($service);
             }
         }
 
-        if ($service) {
+        if ($service)
+        {
             $this->setService($service);
 
-            if (!empty($options['api_key'])) {
+            if (!empty($options['api_key']))
+            {
                 $this->getService()->setApiKey($options['api_key']);
                 unset($options['api_key']);
             }
         }
 
-        if (!empty($options)) {
+        if (!empty($options))
+        {
             $this->options = array_merge($this->options, $options);
         }
 
-        if (!empty($options['debug'])) {
+        if (!empty($options['debug']))
+        {
             // set Logger
             $this->setLogger(new Logger);
         }
@@ -113,7 +121,6 @@ class AntiCaptcha
     public function setService(AbstractService $service)
     {
         $this->service = $service;
-
         return $this;
     }
 
@@ -159,7 +166,7 @@ class AntiCaptcha
      * Method balance description.
      *
      * @return mixed
-     * @throws ExceptionAntiCaptcha
+     * @throws AntiCaptchaException
      */
     public function balance()
     {
@@ -180,8 +187,9 @@ class AntiCaptcha
 
         $this->logger->debug('result: ' . $body);
 
-        if (strpos($body, 'ERROR') !== false) {
-            throw new Exception($body);
+        if (strpos($body, 'ERROR') !== false)
+        {
+            throw new AntiCaptchaException($body);
         }
 
         return $body;
@@ -195,11 +203,10 @@ class AntiCaptcha
      * @param array $params
      *
      * @return string
-     * @throws ExceptionAntiCaptcha
+     * @throws AntiCaptchaException
      */
     public function recognize($image, $url = null, $params = [])
     {
-        // Download image
         if (null !== $url)
         {
             $request = $this->client->request('GET', $url);
@@ -211,10 +218,8 @@ class AntiCaptcha
             $this->getService()->setParams($params);
         }
 
-        // Send image to Anti-Captcha service
         $captcha_id = $this->sendImage($image);
 
-        // Get results
         if (!empty($captcha_id)) {
             return $this->getResult($captcha_id);
         }
@@ -226,7 +231,7 @@ class AntiCaptcha
      * @param $image
      *
      * @return null
-     * @throws ExceptionAntiCaptcha
+     * @throws AntiCaptchaException
      */
     protected function sendImage($image)
     {
@@ -249,17 +254,21 @@ class AntiCaptcha
         $result = $this->client->request('POST', $url, $postfields);
         $body = $result->getBody();
 
-        if (stripos($body, 'ERROR') !== false) {
-            throw new Exception($body);
+        if (stripos($body, 'ERROR') !== false)
+        {
+            throw new AntiCaptchaException($body);
         }
 
-        if (stripos($body, 'html') !== false) {
-            throw new Exception('Anticaptcha server returned error!');
+        if (stripos($body, 'html') !== false)
+        {
+            throw new AntiCaptchaException('Anticaptcha server returned error!');
         }
 
-        if (stripos($body, 'OK') !== false) {
+        if (stripos($body, 'OK') !== false)
+        {
             $ex = explode("|", $body);
-            if (trim($ex[0]) == 'OK') {
+            if (trim($ex[0]) == 'OK')
+            {
                 return !empty($ex[1]) ? $ex[1] : null; // возвращаем captcha_id
             }
         }
@@ -271,7 +280,7 @@ class AntiCaptcha
      * @param $captcha_id
      *
      * @return string
-     * @throws ExceptionAntiCaptcha
+     * @throws AntiCaptchaException
      */
     protected function getResult($captcha_id)
     {
@@ -296,30 +305,39 @@ class AntiCaptcha
 
             $body = $request->getBody();
 
-            if (strpos($body, 'ERROR') !== false) {
-                throw new Exception("Anticaptcha server returned error: $body");
+            if (strpos($body, 'ERROR') !== false)
+            {
+                throw new AntiCaptchaException("Anticaptcha server returned error: $body");
             }
 
-            if ($body == "CAPCHA_NOT_READY") {
+            if ($body == "CAPCHA_NOT_READY")
+            {
                 $this->logger->debug('captcha is not ready yet');
 
                 $waittime += $this->options['timeout_ready'];
 
-                if ($waittime > $this->options['timeout_max']) {
+                if ($waittime > $this->options['timeout_max'])
+                {
                     $this->logger->debug('timelimit (' . $this->options['timeout_max'] . ') hit');
                     break;
                 }
 
                 $this->logger->debug('waiting for ' . $this->options['timeout_ready'] . ' seconds');
                 sleep($this->options['timeout_ready']);
-            } else {
+            }
+            else
+            {
                 $ex = explode('|', $body);
 
-                if (trim($ex[0]) == 'OK') {
+                if (trim($ex[0]) == 'OK')
+                {
                     $this->logger->debug('result: ' . $body);
                     return trim($ex[1]);
                 }
             }
         }
     }
+
+
+
 }
