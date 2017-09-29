@@ -367,7 +367,9 @@ class AntiCaptcha
 
                 if (trim($ex[0]) == 'OK')
                 {
-                    $this->logger->debug('result: ' . $body);
+                    if( $this->debugMod ) {
+                        $this->logger->debug('result: ' . $body);
+                    }
                     return trim($ex[1]);
                 }
             }
