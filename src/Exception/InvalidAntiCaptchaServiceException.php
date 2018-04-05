@@ -1,4 +1,6 @@
-<?php namespace AntiCaptcha\Exception;
+<?php
+
+namespace AntiCaptcha\Exception;
 
 
 /**
@@ -9,6 +11,7 @@ class InvalidAntiCaptchaServiceException extends AntiCaptchaException
 {
     /**
      * InvalidAntiCaptchaServiceException constructor.
+     *
      * @param string $service
      * @param int $code
      * @param \Exception $previous

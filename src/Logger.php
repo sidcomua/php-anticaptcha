@@ -1,12 +1,15 @@
-<?php namespace AntiCaptcha;
+<?php
+
+namespace AntiCaptcha;
+
+use Psr\Log\AbstractLogger;
 
 /**
  * Class Logger
  * @package AntiCaptcha
  */
-class Logger extends \Psr\Log\AbstractLogger 
+class Logger extends AbstractLogger
 {
-
     /**
      * Method log description.
      * @param $level

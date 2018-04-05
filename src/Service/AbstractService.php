@@ -1,4 +1,6 @@
-<?php namespace AntiCaptcha\Service;
+<?php
+
+namespace AntiCaptcha\Service;
 
 /**
  * Class AbstractService
@@ -6,54 +8,48 @@
  */
 class AbstractService
 {
-    /**
-     * @var string
-     */
-    protected $api_key;
+    /** @var string $apiKey */
+    protected $apiKey;
 
-    /**
-     * @var string
-     */
-    protected $api_url;
+    /** @var string $apiUrl */
+    protected $apiUrl;
 
 
     /**
      * @var array
      */
-    protected $params =
-        [
-            'phrase'    => 0, // 0 либо 1 - флаг "в капче 2 и более слов"
-            'regsense'  => 0, // 0 либо 1 - флаг "регистр букв в капче имеет значение"
-            'numeric'   => 0, // 0 либо 1 - флаг "капча состоит только из цифр"
-            'calc'      => 0, // 0 либо 1 - помечает что цифры на капче должны быть сплюсованы
-            'min_len'   => 0, // 0 (без ограничений), любая другая цифра указывает минимальную длину текста капчи
-            'max_len'   => 0, // 0 (без ограничений), любая другая цифра указывает максимальную длину текста капчи
-        ];
+    protected $params = [
+        'phrase' => 0, // 0 либо 1 - флаг "в капче 2 и более слов"
+        'regsense' => 0, // 0 либо 1 - флаг "регистр букв в капче имеет значение"
+        'numeric' => 0, // 0 либо 1 - флаг "капча состоит только из цифр"
+        'calc' => 0, // 0 либо 1 - помечает что цифры на капче должны быть сплюсованы
+        'min_len' => 0, // 0 (без ограничений), любая другая цифра указывает минимальную длину текста капчи
+        'max_len' => 0, // 0 (без ограничений), любая другая цифра указывает максимальную длину текста капчи
+    ];
 
     /**
      * AbstractService constructor.
-     * @param null $api_key
-     * @param null $api_url
+     * @param null $apiKey
+     * @param null $apiUrl
      */
-    public function __construct($api_key = null, $api_url = null)
+    public function __construct($apiKey = null, $apiUrl = null)
     {
-        $this->setApiKey($api_key);
+        $this->setApiKey($apiKey);
 
-        if (null !== $api_url)
-        {
-            $this->setApiUrl($api_url);
+        if (null !== $apiUrl) {
+            $this->setApiUrl($apiUrl);
         }
     }
 
     /**
      * Method setApiKey description.
-     * @param $api_key
+     * @param $apiKey
      *
      * @return $this
      */
-    public function setApiKey($api_key)
+    public function setApiKey($apiKey)
     {
-        $this->api_key = $api_key;
+        $this->apiKey = $apiKey;
 
         return $this;
     }
@@ -65,18 +61,18 @@ class AbstractService
      */
     public function getApiKey()
     {
-        return $this->api_key;
+        return $this->apiKey;
     }
 
     /**
      * Method setApiUrl description.
-     * @param $api_url
+     * @param $apiUrl
      *
      * @return $this
      */
-    public function setApiUrl($api_url)
+    public function setApiUrl($apiUrl)
     {
-        $this->api_url = $api_url;
+        $this->apiUrl = $apiUrl;
 
         return $this;
     }
@@ -88,7 +84,7 @@ class AbstractService
      */
     public function getApiUrl()
     {
-        return rtrim($this->api_url, '/');
+        return rtrim($this->apiUrl, '/');
     }
 
     /**

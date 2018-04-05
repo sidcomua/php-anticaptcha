@@ -1,4 +1,6 @@
-<?php namespace AntiCaptcha\Service;
+<?php
+
+namespace AntiCaptcha\Service;
 
 /**
  * Class Antigate
@@ -6,9 +8,6 @@
  */
 class Antigate extends AbstractService
 {
-
-    /**
-     * @var string
-     */
-    protected $api_url = 'http://antigate.com';
+    /** @var string $apiUrl */
+    protected $apiUrl = 'http://antigate.com';
 }

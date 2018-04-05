@@ -1,4 +1,6 @@
-<?php namespace AntiCaptcha\Service;
+<?php
+
+namespace AntiCaptcha\Service;
 
 /**
  * Class Rucaptcha
@@ -6,12 +8,9 @@
  */
 class Rucaptcha extends AbstractService
 {
+    /** @var string $apiUrl */
+    protected $apiUrl = 'http://rucaptcha.com';
 
-    /**
-     * @var string
-     */
-    protected $api_url = 'http://rucaptcha.com';
-    
     /**
      * Method getParams description.
      *
@@ -19,11 +18,8 @@ class Rucaptcha extends AbstractService
      */
     public function getParams()
     {
-        return array_merge(
-            $this->params, 
-            [
-                'soft_id' => 1528
-            ]
-        );
+        return array_merge($this->params, [
+            'soft_id' => 1528
+        ]);
     }
 }

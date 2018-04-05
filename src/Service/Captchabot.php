@@ -1,4 +1,6 @@
-<?php namespace AntiCaptcha\Service;
+<?php
+
+namespace AntiCaptcha\Service;
 
 /**
  * Class Captchabot
@@ -6,9 +8,6 @@
  */
 class Captchabot extends AbstractService
 {
-
-    /**
-     * @var string
-     */
-    protected $api_url = 'http://captchabot.com';
+    /** @var string $apiUrl */
+    protected $apiUrl = 'http://captchabot.com';
 }

@@ -1,4 +1,6 @@
-<?php namespace AntiCaptcha\Exception;
+<?php
+
+namespace AntiCaptcha\Exception;
 
 /**
  * Class AntiCaptchaException
@@ -6,5 +8,4 @@
  */
 class AntiCaptchaException extends \Exception
 {
-
 }
