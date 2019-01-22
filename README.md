@@ -2,8 +2,8 @@
   <h3 align="center">Anticaptcha PHP SDK</h3>
 
   <p align="center">
-    Everyone dreams of something beautiful.<br/>
-    I, personally, dream of a hut in Kyiv which I will get with the help of this ICO.
+    This library will help you to recognize any captcha via specific services.<br>
+    Easy to install. Easy to use.
     <br/>
     <br/>
     <a href="https://packagist.org/packages/reilag/php-anticaptcha">packages.org</a>
