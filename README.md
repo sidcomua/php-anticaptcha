@@ -32,12 +32,12 @@ PHP client for Anticaptcha services:
 ### Install
 
 You can add Anticaptcha as a dependency using the **composer.phar** CLI:
-```
-# Install Composer
+```bash
+# Install Composer (if need)
 curl -sS https://getcomposer.org/installer | php
 
 # Add dependency
-php composer.phar require reilag/php-anticaptcha:^1.2.3
+composer require reilag/php-anticaptcha:^1.2.3
 ```
 
 
@@ -45,6 +45,9 @@ After installing, you need to require Composer's autoloader:
 ```php
 require 'vendor/autoload.php';
 ```
+
+You can find some examples at [/example](/example) path.
+
 
 ### Recognize captcha
 ```php
@@ -56,9 +59,17 @@ $image = file_get_contents(realpath(dirname(__FILE__)) . '/images/image.jpg');
 // Your API key
 $apiKey = '*********** API_KEY **************';
 
-$antiCaptchaClient = new AntiCaptcha(AntiCaptcha::SERVICE_ANTICAPTCHA, ['api_key' => $apiKey, 'debug' => true]);
+$antiCaptchaClient = new AntiCaptcha(
+    AntiCaptcha::SERVICE_ANTICAPTCHA,
+    [
+        'api_key' => $apiKey,
+        'debug' => true
+    ]
+);
+
 echo $antiCaptchaClient->recognize($image, null, ['phrase' => 0, 'numeric' => 0]);
 ```
+
 
 ### Get balance
 ```php

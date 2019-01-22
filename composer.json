@@ -1,6 +1,6 @@
 {
     "name": "reilag/php-anticaptcha",
-    "version": "1.2.3",
+    "version": "1.2.4",
     "type": "library",
     "description": "AntiCaptcha - Is PHP Library for working with Anticapthca services",
     "keywords": ["php", "anticaptcha", "anti-captcha", "antigate", "rucaptcha"],

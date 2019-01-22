@@ -2,12 +2,11 @@
 
 namespace AntiCaptcha;
 
-use AntiCaptcha\Exception\AntiCaptchaException;
-use AntiCaptcha\Exception\InvalidAntiCaptchaServiceException;
-use AntiCaptcha\Service\AbstractService;
 use GuzzleHttp\Client as GuzzleClient;
 use Psr\Log\AbstractLogger;
-
+use AntiCaptcha\Service\AbstractService;
+use AntiCaptcha\Exception\AntiCaptchaException;
+use AntiCaptcha\Exception\InvalidAntiCaptchaServiceException;
 
 /**
  * Class AntiCaptcha
@@ -15,17 +14,13 @@ use Psr\Log\AbstractLogger;
  */
 class AntiCaptcha
 {
-
     /** @var AbstractService $service */
     protected $service;
 
     /** @var GuzzleClient $client */
     protected $client;
 
-    /**
-     * @var AbstractLogger $logger
-     * @deprecated
-     */
+    /** @var AbstractLogger $logger */
     protected $logger;
 
     /**
@@ -33,21 +28,22 @@ class AntiCaptcha
      */
     protected $debugMod = false;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $options = [
-        'timeout_ready' => 3, // задержка между опросами статуса капчи
-        'timeout_max' => 120, // время ожидания ввода капчи
+        // задержка между опросами статуса капчи
+        'timeout_ready' => 3,
+
+        // время ожидания ввода капчи
+        'timeout_max' => 120,
     ];
 
     /**
      * Constants list
      */
-    const SERVICE_ANTICAPTCHA = 'anti-captcha';
-    const SERVICE_ANTIGATE = 'antigate';
-    const SERVICE_CAPTCHABOT = 'captchabot';
-    const SERVICE_RUCAPTCHA = 'rucaptcha';
+    const SERVICE_ANTICAPTCHA = 'AntiCaptcha';
+    const SERVICE_ANTIGATE = 'Antigate';
+    const SERVICE_CAPTCHABOT = 'Captchabot';
+    const SERVICE_RUCAPTCHA = 'Rucaptcha';
 
     /**
      * Captcha service list
@@ -55,32 +51,29 @@ class AntiCaptcha
      * @var array
      */
     protected static $serviceMap = [
-        self::SERVICE_ANTICAPTCHA => Service\AntiCaptcha::class,
-        self::SERVICE_ANTIGATE => Service\Antigate::class,
-        self::SERVICE_CAPTCHABOT => Service\Captchabot::class,
-        self::SERVICE_RUCAPTCHA => Service\Rucaptcha::class,
+        self::SERVICE_ANTICAPTCHA,
+        self::SERVICE_ANTIGATE,
+        self::SERVICE_CAPTCHABOT,
+        self::SERVICE_RUCAPTCHA,
     ];
 
     /**
      * AntiCaptcha constructor.
-     * @param null|string|AbstractService $service
+     * @param string|AbstractService $service
      * @param array $options
      *
      * @throws AntiCaptchaException
      * @throws InvalidAntiCaptchaServiceException
      */
-    public function __construct($service = null, array $options = [])
+    public function __construct($service, array $options = [])
     {
         if (is_string($service)) {
-            $serviceName = ucfirst(strtolower($service));
-            $serviceNamespace = __NAMESPACE__ . '\\Service\\' . $serviceName;
-
-            if (array_key_exists($service, self::$serviceMap)) {
-                $serviceNamespace = self::$serviceMap[$service];
-                $service = new $serviceNamespace;
-            } else {
+            if (false === in_array($service, self::$serviceMap)) {
                 throw new InvalidAntiCaptchaServiceException($service);
             }
+
+            $serviceNamespace = '\\AntiCaptcha\\Service\\' . $service;
+            $service = new $serviceNamespace;
         }
 
         if ($service) {
@@ -115,6 +108,7 @@ class AntiCaptcha
     public function setService(AbstractService $service)
     {
         $this->service = $service;
+
         return $this;
     }
 
@@ -262,9 +256,9 @@ class AntiCaptcha
         }
 
         if (stripos($body, 'OK') !== false) {
-            $ex = explode("|", $body);
+            $ex = explode('|', $body);
             if (trim($ex[0]) == 'OK') {
-                return !empty($ex[1]) ? $ex[1] : null; // return captcha_id
+                return !empty($ex[1]) ? $ex[1] : null;
             }
         }
     }
