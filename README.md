@@ -1,10 +1,29 @@
-# Anticaptcha PHP SDK
+<p align="center">
+  <h3 align="center">Anticaptcha PHP SDK</h3>
 
-[PHP Anticaptcha on Packages.org](https://packagist.org/packages/reilag/php-anticaptcha)
+  <p align="center">
+    Everyone dreams of something beautiful.<br/>
+    I, personally, dream of a hut in Kyiv which I will get with the help of this ICO.
+    <br/>
+    <br/>
+    <a href="https://packagist.org/packages/reilag/php-anticaptcha">packages.org</a>
+    ·
+    <a href="http://getcaptchasolution.com/zi0d4paljn">anti-captcha.com</a>
+  </p>
+</p>
+
+---
+
+[![Latest Stable Version](https://poser.pugx.org/reilag/php-anticaptcha/v/stable)](https://packagist.org/packages/reilag/php-anticaptcha)
+[![Total Downloads](https://poser.pugx.org/reilag/php-anticaptcha/downloads)](https://packagist.org/packages/reilag/php-anticaptcha)
+[![License](https://poser.pugx.org/reilag/php-anticaptcha/license)](https://packagist.org/packages/reilag/php-anticaptcha)
+
+---
+
 
 PHP client for Anticaptcha services:
 
-* [anti-captcha.com](http://anti-captcha.com) (recommend)
+* [anti-captcha.com](http://getcaptchasolution.com/zi0d4paljn) (recommend)
 * [antigate.com](http://antigate.com)
 * [captchabot.com](http://captchabot.com)
 * [rucaptcha.com](http://rucaptcha.com)
@@ -18,7 +37,7 @@ You can add Anticaptcha as a dependency using the **composer.phar** CLI:
 curl -sS https://getcomposer.org/installer | php
 
 # Add dependency
-php composer.phar require reilag/php-anticaptcha:^1.0.0
+php composer.phar require reilag/php-anticaptcha:^1.2.3
 ```
 
 
