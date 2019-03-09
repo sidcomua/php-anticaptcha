@@ -1,5 +1,5 @@
 <p align="center">
-  <h3 align="center">Anticaptcha PHP SDK</h3>
+  <h1 align="center">Anticaptcha PHP SDK</h1>
 
   <p align="center">
     This library will help you to recognize any captcha via specific services.<br>
