@@ -1,5 +1,6 @@
 {
     "name": "reilag/php-anticaptcha",
+    "version": "2.0.0",
     "type": "library",
     "description": "AntiCaptcha - Is PHP Library for working with Anticapthca services",
     "keywords": ["php", "anticaptcha", "anti-captcha", "antigate", "rucaptcha"],
@@ -12,9 +13,10 @@
         }
     ],
     "require": {
-        "php": ">=7.2.5",
+        "php": ">=7.2.6",
         "guzzlehttp/guzzle": "^7.0.1",
-        "psr/log": "~1"
+        "psr/log": "~1",
+        "ext-json": "*"
     },
     "autoload": {
         "psr-4": {

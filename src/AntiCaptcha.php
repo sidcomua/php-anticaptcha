@@ -2,7 +2,9 @@
 
 namespace AntiCaptcha;
 
+use AntiCaptcha\Task\AbstractTask;
 use GuzzleHttp\Client as GuzzleClient;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\AbstractLogger;
 use AntiCaptcha\Service\AbstractService;
 use AntiCaptcha\Exception\AntiCaptchaException;
@@ -23,27 +25,24 @@ class AntiCaptcha
     /** @var AbstractLogger $logger */
     protected $logger;
 
-    /**
-     * @var bool
-     */
+    /** @var bool $debugMod */
     protected $debugMod = false;
 
     /** @var array */
     protected $options = [
-        // задержка между опросами статуса капчи
+        'timeout_start' => 6,
+
+        // time between requesting of captcha solving
         'timeout_ready' => 3,
 
-        // время ожидания ввода капчи
-        'timeout_max' => 120,
+        // timeout of captcha solving
+        'timeout_max' => 300,
     ];
 
     /**
      * Constants list
      */
     const SERVICE_ANTICAPTCHA = 'AntiCaptcha';
-    const SERVICE_ANTIGATE = 'Antigate';
-    const SERVICE_CAPTCHABOT = 'Captchabot';
-    const SERVICE_RUCAPTCHA = 'Rucaptcha';
 
     /**
      * Captcha service list
@@ -52,9 +51,6 @@ class AntiCaptcha
      */
     protected static $serviceMap = [
         self::SERVICE_ANTICAPTCHA,
-        self::SERVICE_ANTIGATE,
-        self::SERVICE_CAPTCHABOT,
-        self::SERVICE_RUCAPTCHA,
     ];
 
     /**
@@ -100,7 +96,7 @@ class AntiCaptcha
 
 
     /**
-     * Anticaptcah service provider.
+     * Setup Anti captcha service provider.
      * @param AbstractService $service
      *
      * @return $this
@@ -116,7 +112,7 @@ class AntiCaptcha
     /**
      * Method getService description.
      *
-     * @return mixed
+     * @return AbstractService
      */
     public function getService()
     {
@@ -167,156 +163,181 @@ class AntiCaptcha
      */
     public function balance()
     {
-        $this->debug("check ballans ...");
+        $this->debug('check balance ...');
+        $response = $this->sendRequest('/getBalance');
 
-        $url = $this->getService()->getApiUrl() . '/res.php';
-
-        $this->debug('connect to: ' . $url);
-
-        $request = $this->client->request('GET', $url, [
-            'query' => [
-                'key' => $this->getService()->getApiKey(),
-                'action' => 'getbalance'
-            ]
-        ]);
-
-        $body = $request->getBody();
-        $this->debug('result: ' . $body);
-
-        if (strpos($body, 'ERROR') !== false) {
-            throw new AntiCaptchaException($body);
-        }
-
-        return $body;
+        return $response['balance'];
     }
 
 
     /**
-     * Method recognize description.
-     * @param $image
-     * @param null $url
-     * @param array $params
+     * Method to recognize image request.
      *
-     * @return string|null
+     * @param $image
+     * @param ?string $url
+     * @param array $params
+     * @param string $languagePool
+     *
+     * @return ?string
      * @throws AntiCaptchaException
      */
-    public function recognize($image, $url = null, $params = [])
+    public function recognizeImage($image, $url = null, $params = [], $languagePool = 'en')
     {
         if (null !== $url) {
             $request = $this->client->request('GET', $url);
             $image = $request->getBody();
         }
 
-        if (!empty($params)) {
-            $this->getService()->setParams($params);
-        }
-
-        $captchaId = $this->sendImage($image);
-
-        if (empty($captchaId)) {
-            return null;
-        }
-
-        return $this->getResult($captchaId);
-    }
-
-
-    /**
-     * Method sendImage description.
-     * @param $image
-     *
-     * @return null
-     * @throws AntiCaptchaException
-     */
-    protected function sendImage($image)
-    {
-        $requestFields = [
-            'form_params' => [
-                'key' => $this->getService()->getApiKey(),
-                'method' => 'base64',
+        $requestParams = [
+            'task' => array_merge([
+                'type' => 'ImageToTextTask',
                 'body' => base64_encode($image),
-            ]
+                'phrase' => false,
+                'case' => false,
+                'numeric' => 0,
+                'math' => false,
+                'minLength' => 0,
+                'maxLength' => 0
+            ], $params),
+            'languagePool' => $languagePool
         ];
 
-        foreach ($this->getService()->getParams() as $key => $val) {
-            $requestFields['form_params'][$key] = (string)$val;
+        $body = $this->sendRequest('/createTask', $requestParams);
+
+        $taskId = $body['taskId'];
+
+        if (empty($taskId)) {
+            throw new AntiCaptchaException('Did not created task');
         }
 
-        $url = $this->getService()->getApiUrl() . '/in.php';
+        $captchaResponse = $this->getResult($taskId);
 
-        $result = $this->client->request('POST', $url, $requestFields);
-        $body = $result->getBody();
+        return $captchaResponse['solution']['text'];
+    }
 
-        if (stripos($body, 'ERROR') !== false) {
-            throw new AntiCaptchaException($body);
+    /**
+     * @param AbstractTask $task
+     * @return mixed
+     *
+     * @throws AntiCaptchaException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function recognizeTask(AbstractTask $task)
+    {
+        $requestParams = [
+            'task' => $task->getTaskParams()
+        ];
+
+        $requestParams = array_merge($requestParams, $task->otherRequestParams());
+
+        $body = $this->sendRequest('/createTask', $requestParams);
+        $taskId = $body['taskId'];
+
+        if (empty($taskId)) {
+            throw new AntiCaptchaException('Did not created task');
         }
 
-        if (stripos($body, 'html') !== false) {
-            throw new AntiCaptchaException('Anticaptcha server returned error!');
-        }
+        $captchaResponse = $this->getResult($taskId);
 
-        if (stripos($body, 'OK') !== false) {
-            $ex = explode('|', $body);
-            if (trim($ex[0]) == 'OK') {
-                return !empty($ex[1]) ? $ex[1] : null;
-            }
-        }
+        return $captchaResponse['solution'];
     }
 
 
     /**
      * Method getResult description.
-     * @param $captchaId
+     * @param $taskId
      *
-     * @return string
+     * @return array
      * @throws AntiCaptchaException
      */
-    protected function getResult($captchaId)
+    protected function getResult($taskId)
     {
-        $this->debug('captcha sent, got captcha ID: ' . $captchaId);
+        $this->debug('captcha sent, got task ID: ' . $taskId);
 
         // Delay, before first captcha check
-        $this->debug('waiting for 10 seconds');
-        sleep(10);
+        $this->debug('waiting for ' . $this->options['timeout_start'] .  ' seconds');
+        sleep($this->options['timeout_start']);
 
         $waitTime = 0;
 
         while (true) {
-            $request = $this->client->request('GET', $this->getService()->getApiUrl() . '/res.php', [
-                'query' => [
-                    'key' => $this->getService()->getApiKey(),
-                    'action' => 'get',
-                    'id' => $captchaId,
-                ]
+            $response = $this->sendRequest('/getTaskResult', [
+                'taskId' => $taskId,
             ]);
 
-            $body = $request->getBody();
+            if ($response['status'] === 'ready') {
+                return $response;
 
-            if (strpos($body, 'ERROR') !== false) {
-                throw new AntiCaptchaException("Anticaptcha server returned error: $body");
             }
 
-            if ($body == "CAPCHA_NOT_READY") {
-                $this->debug('captcha is not ready yet');
+            $this->debug('captcha is not ready yet');
 
-                $waitTime += $this->options['timeout_ready'];
+            $waitTime += $this->options['timeout_ready'];
 
-                if ($waitTime > $this->options['timeout_max']) {
-                    $this->debug('timelimit (' . $this->options['timeout_max'] . ') hit');
-                    break;
-                }
-
-                $this->debug('waiting for ' . $this->options['timeout_ready'] . ' seconds');
-                sleep($this->options['timeout_ready']);
-            } else {
-                $ex = explode('|', $body);
-
-                if (trim($ex[0]) == 'OK') {
-                    $this->debug('result: ' . $body);
-
-                    return trim($ex[1]);
-                }
+            if ($waitTime > $this->options['timeout_max']) {
+                $this->debug('timelimit (' . $this->options['timeout_max'] . ') hit');
+                throw new AntiCaptchaException('Timeout of resolving captcha');
             }
+
+            $this->debug('waiting for ' . $this->options['timeout_ready'] . ' seconds');
+            sleep($this->options['timeout_ready']);
         }
+    }
+
+
+    /**
+     * @param string $action
+     * @param array $requestParams
+     * @return array
+     *
+     * @throws AntiCaptchaException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    protected function sendRequest($action, $requestParams = [])
+    {
+        $url = $this->getService()->getApiUrl() . $action;
+
+        $this->debug('request to: ' . $url);
+
+        $result = $this->client->post($url, [
+            'body' => json_encode(array_merge($this->getBasicParams(), $requestParams)),
+            'headers'  => [
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+
+        $this->debug('response with status: ' . $result->getStatusCode());
+        $responseBody = $result->getBody()->getContents();
+        $this->debug('response with body: ' . $responseBody);
+
+        return $this->resolveResponse($responseBody);
+    }
+
+    /**
+     * @return array
+     */
+    protected function getBasicParams(): array
+    {
+        return array_merge([
+            'clientKey' => $this->getService()->getApiKey(),
+        ], $this->getService()->getParams());
+    }
+
+
+    /**
+     * @param ResponseInterface $response
+     * @return array
+     *
+     * @throws AntiCaptchaException
+     */
+    protected function resolveResponse($body)
+    {
+        $data = json_decode($body, true);
+
+        if ($data['errorId'] !== 0) {
+            throw new AntiCaptchaException($data['errorDescription'], $data['errorCode']);
+        }
+
+        return $data;
     }
 }

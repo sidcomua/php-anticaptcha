@@ -9,7 +9,7 @@ namespace AntiCaptcha\Service;
 class AntiCaptcha extends AbstractService
 {
     /** @var string $apiUrl */
-    protected $apiUrl = 'http://anti-captcha.com';
+    protected $apiUrl = 'https://api.anti-captcha.com';
 
     /**
      * Method getParams description.
@@ -19,7 +19,7 @@ class AntiCaptcha extends AbstractService
     public function getParams()
     {
         return array_merge($this->params, [
-            'soft_id' => 791
+            'softId' => 791
         ]);
     }
 }
