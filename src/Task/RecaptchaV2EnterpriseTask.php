@@ -5,9 +5,9 @@ namespace AntiCaptcha\Task;
 use AntiCaptcha\Helper\ProxySupportTrait;
 
 /**
- * Class RecaptchaV2Task.
+ * Class RecaptchaV2EnterpriseTask.
  */
-class RecaptchaV2Task extends AbstractTask
+class RecaptchaV2EnterpriseTask extends AbstractTask
 {
     use ProxySupportTrait;
 
@@ -17,11 +17,11 @@ class RecaptchaV2Task extends AbstractTask
     /** @var string $websiteKey */
     protected $websiteKey;
 
-    /** @var string $recaptchaDataSValue */
-    protected $recaptchaDataSValue;
+    /** @var array $enterprisePayload */
+    protected $enterprisePayload;
 
-    /** @var boolean $isInvisible */
-    protected $isInvisible;
+    /** @var string $apiDomain */
+    protected $apiDomain;
 
     /**
      * @param string $websiteUrl
@@ -35,15 +35,14 @@ class RecaptchaV2Task extends AbstractTask
         $this->websiteKey = $websiteKey;
     }
 
-
-    public function setIsInvisible(bool $isInvisible)
+    public function setEnterprisePayload(array $enterprisePayload)
     {
-        $this->isInvisible = $isInvisible;
+        $this->enterprisePayload = $enterprisePayload;
     }
 
-    public function setRecaptchaDataSValue($recaptchaDataSValue)
+    public function setApiDomain(string $apiDomain)
     {
-        $this->recaptchaDataSValue = $recaptchaDataSValue;
+        $this->apiDomain = $apiDomain;
     }
 
     /**
@@ -53,16 +52,16 @@ class RecaptchaV2Task extends AbstractTask
     {
         $data = [];
 
-        $data['type'] = $this->useProxy() ? 'RecaptchaV2Task' : 'RecaptchaV2TaskProxyless';
+        $data['type'] = $this->useProxy() ? 'RecaptchaV2EnterpriseTask' : 'RecaptchaV2EnterpriseTaskProxyless';
         $data['websiteURL'] = $this->websiteUrl;
         $data['websiteKey'] = $this->websiteKey;
 
-        if (!is_null($this->recaptchaDataSValue)) {
-            $data['recaptchaDataSValue'] = $this->recaptchaDataSValue;
+        if (!is_null($this->enterprisePayload)) {
+            $data['enterprisePayload'] = $this->enterprisePayload;
         }
 
-        if (!is_null($this->isInvisible)) {
-            $data['isInvisible'] = $this->isInvisible;
+        if (!is_null($this->apiDomain)) {
+            $data['apiDomain'] = $this->apiDomain;
         }
 
         if ($this->useProxy()) {
