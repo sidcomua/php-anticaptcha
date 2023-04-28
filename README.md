@@ -21,9 +21,14 @@
 ---
 
 
-PHP client for Anticaptcha services:
-
-* [anti-captcha.com](http://getcaptchasolution.com/zi0d4paljn) (recommend)
+PHP client for  [anti-captcha.com](http://getcaptchasolution.com/zi0d4paljn) service.
+This client supports resolving captcha types:
+ - [Captcha from image](#recognize-captcha-from-image)
+ - [reCaptcha V2](#recognize-recaptcha-v2-with-proxy-or-without)
+ - [Invisible reCaptcha](#recognize-recaptcha-v2-with-proxy-or-without)
+ - [reCaptcha V2 Enterprise](#recognize-recaptcha-v2-enterprise-with-proxy-or-without)
+ - [reCaptcha V3](#recognize-captcha-from-image)
+ - [reCaptcha V3 Enterprise](#recognize-recaptcha-v3-or-v3-enterprise)
 
 
 ### Install
@@ -78,7 +83,7 @@ echo $imageText;
 
 
 
-### Recognize reCaptcha V2 (with Proxy or without)
+### Recognize reCaptcha V2 (with Proxy or without, Invisible)
 
 ```php
 $reCaptchaV2Task = new \AntiCaptcha\Task\RecaptchaV2Task(
@@ -110,6 +115,37 @@ echo $response['gRecaptchaResponse'];
 ```
 
 
+### Recognize reCaptcha V2 Enterprise (with Proxy or without)
+
+```php
+$task = new \AntiCaptcha\Task\RecaptchaV2EnterpriseTask(
+    "http://makeawebsitehub.com/recaptcha/test.php",     // <-- target website address
+    "6LfI9IsUAAAAAKuvopU0hfY8pWADfR_mogXokIIZ"           // <-- recaptcha key from target website
+);
+
+// Additional array parameters enterprisePayload
+$task->setEnterprisePayload([
+    "s" => "SOME_ADDITIONAL_TOKEN"
+]);
+
+// To use Proxy
+$task->setProxy(
+    "8.8.8.8",
+    1234,
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116",
+    "http",
+    "login",
+    "password",
+    // also you can add cookie
+    "cookiename1=cookievalue1; cookiename2=cookievalue2" 
+);
+
+$response = $antiCaptchaClient->recognizeTask($task);
+
+echo $response['gRecaptchaResponse'];
+```
+
+
 
 ### Recognize reCaptcha V3 (or V3 Enterprise)
 
@@ -129,44 +165,13 @@ $reCaptchaV3Task->pageAction("myaction");
 // As V3 Enterprise is virtually the same as V3 non-Enterprise, we decided to roll out it’s support within the usual V3 tasks.
 // Set this flag to "true" if you need this V3 solved with Enterprise API. Default value is "false" and
 // Recaptcha is solved with non-enterprise API.
-$reCaptchaV3Task->setIsEnterprise(false);
+$reCaptchaV3Task->setIsEnterprise(true);
 
 $response = $antiCaptchaClient->recognizeTask($reCaptchaV3Task);
 
 echo $response['gRecaptchaResponse'];  // Return 3AHJ_VuvYIBNBW5yyv0zRYJ75VkOKvhKj9_xGBJKnQimF72rfoq3Iy-DyGHMwLAo6a3
 ```
 
-
-
-### Recognize reCaptcha V2 Enterprise (with Proxy or without)
-
-```php
-$task = new \AntiCaptcha\Task\RecaptchaV2EnterpriseTask(
-    "http://makeawebsitehub.com/recaptcha/test.php",     // <-- target website address
-    "6LfI9IsUAAAAAKuvopU0hfY8pWADfR_mogXokIIZ"           // <-- recaptcha key from target website
-);
-
-// Additional array parameters enterprisePayload
-$task->setEnterprisePayload([
-    "s" => "SOME_ADDITIONAL_TOKEN"
-]);
-
-// To use Proxy, use this function
-$task->setProxy(
-    "8.8.8.8",
-    1234,
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116",
-    "http",
-    "login",
-    "password",
-    // also you can add cookie
-    "cookiename1=cookievalue1; cookiename2=cookievalue2" 
-);
-
-$response = $antiCaptchaClient->recognizeTask($task);
-
-echo $response['gRecaptchaResponse'];
-```
 
 
 
