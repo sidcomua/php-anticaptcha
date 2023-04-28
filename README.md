@@ -45,7 +45,7 @@ You can add Anticaptcha as a dependency using the **composer.phar** CLI:
 curl -sS https://getcomposer.org/installer | php
 
 # Add dependency
-composer require reilag/php-anticaptcha:^2.1.0
+composer require reilag/php-anticaptcha:^2.2.0
 ```
 
 
