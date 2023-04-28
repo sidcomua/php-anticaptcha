@@ -30,7 +30,7 @@ class AntiCaptcha
 
     /** @var array */
     protected $options = [
-        'timeout_start' => 6,
+        'timeout_start' => 5,
 
         // time between requesting of captcha solving
         'timeout_ready' => 3,
